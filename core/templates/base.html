@@ -1,0 +1,140 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}VMS{% endblock %} — Visitor Management System</title>
+    <meta name="description" content="Professional Visitor Management System for secure and efficient visitor tracking">
+    <link rel="stylesheet" href="{% static 'core/css/style.css' %}">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    {% block extra_head %}{% endblock %}
+</head>
+
+<body>
+    {% if messages %}
+    <div class="messages-container">
+        {% for message in messages %}
+        <div class="message message-{{ message.tags }}">{{ message }}</div>
+        {% endfor %}
+    </div>
+    {% endif %}
+
+    <div class="app-layout">
+        <!-- Sidebar -->
+        <aside class="sidebar" id="sidebar">
+            <div class="sidebar-brand">
+                <div class="brand-icon">🏢</div>
+                <div>
+                    <h2>VMS</h2>
+                    <small>Visitor Management</small>
+                </div>
+            </div>
+
+            <nav class="sidebar-nav">
+                <div class="nav-section">
+                    <div class="nav-section-title">Main</div>
+                    <a href="{% url 'dashboard' %}" class="nav-link">
+                        <span class="icon">📊</span> Dashboard
+                    </a>
+                </div>
+
+                {% if user.role == 'guard' or user.role == 'admin' or user.is_superuser %}
+                <div class="nav-section">
+                    <div class="nav-section-title">Visitor Ops</div>
+                    <a href="{% url 'register_visitor' %}" class="nav-link">
+                        <span class="icon">➕</span> Register Visitor
+                    </a>
+                    <a href="{% url 'visitor_list' %}" class="nav-link">
+                        <span class="icon">👥</span> Visitors
+                    </a>
+                    <a href="{% url 'visitor_history' %}" class="nav-link">
+                        <span class="icon">📋</span> Visit History
+                    </a>
+                </div>
+                {% endif %}
+
+                {% if user.role == 'employee' %}
+                <div class="nav-section">
+                    <div class="nav-section-title">My Area</div>
+                    <a href="{% url 'dashboard' %}" class="nav-link">
+                        <span class="icon">✅</span> Approvals
+                    </a>
+                    <a href="{% url 'visitor_history' %}" class="nav-link">
+                        <span class="icon">📋</span> My Visitors
+                    </a>
+                </div>
+                {% endif %}
+
+                {% if user.role == 'admin' or user.is_superuser %}
+                <div class="nav-section">
+                    <div class="nav-section-title">Administration</div>
+                    <a href="{% url 'manage_users' %}" class="nav-link">
+                        <span class="icon">⚙️</span> Manage Users
+                    </a>
+                    <a href="{% url 'blacklist_management' %}" class="nav-link">
+                        <span class="icon">🚫</span> Blacklist
+                    </a>
+                    <a href="{% url 'reports' %}" class="nav-link">
+                        <span class="icon">📈</span> Reports
+                    </a>
+                </div>
+                {% endif %}
+
+                <div class="nav-section">
+                    <div class="nav-section-title">Account</div>
+                    <a href="{% url 'notifications' %}" class="nav-link">
+                        <span class="icon">🔔</span> Notifications
+                        {% if unread_notifications_count %}
+                        <span class="nav-badge">{{ unread_notifications_count }}</span>
+                        {% endif %}
+                    </a>
+                    <a href="{% url 'logout' %}" class="nav-link">
+                        <span class="icon">🚪</span> Logout
+                    </a>
+                </div>
+            </nav>
+
+            <div class="sidebar-footer">
+                <div class="user-info">
+                    <div class="avatar">{{ user.first_name|default:user.username|first|upper }}</div>
+                    <div class="user-details">
+                        <div class="user-name">{{ user.get_full_name|default:user.username }}</div>
+                        <div class="user-role">{{ user.get_role_display }}</div>
+                    </div>
+                </div>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <header class="topbar">
+                <div class="topbar-left" style="display:flex;align-items:center;gap:12px;">
+                    <button class="sidebar-toggle"
+                        onclick="document.getElementById('sidebar').classList.toggle('open')">☰</button>
+                    <div>
+                        <h1>{% block page_title %}Dashboard{% endblock %}</h1>
+                        <p>{% block page_subtitle %}Welcome back{% endblock %}</p>
+                    </div>
+                </div>
+                <div class="topbar-right">
+                    <a href="{% url 'notifications' %}" class="topbar-btn" title="Notifications">
+                        🔔
+                        {% if unread_notifications_count %}<span class="badge-dot"></span>{% endif %}
+                    </a>
+                    <a href="{% url 'logout' %}" class="btn btn-secondary" style="font-size: 13px;" title="Logout">Logout</a>
+                </div>
+            </header>
+
+            <div class="page-content">
+                {% block content %}{% endblock %}
+            </div>
+        </main>
+    </div>
+
+    <script src="{% static 'core/js/main.js' %}"></script>
+    {% block extra_js %}{% endblock %}
+</body>
+
+</html>

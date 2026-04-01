@@ -1,0 +1,82 @@
+{% extends 'base.html' %}
+
+{% block title %}Visitors{% endblock %}
+{% block page_title %}All Visitors{% endblock %}
+{% block page_subtitle %}Search and browse registered visitors{% endblock %}
+
+{% block content %}
+<div class="filter-bar">
+    <form method="GET" style="display:flex;gap:12px;flex-wrap:wrap;width:100%;align-items:center;">
+        <input type="text" name="q" value="{{ q }}" placeholder="🔍 Search by name, phone, company..." style="flex:1;min-width:250px;">
+        <button type="submit" class="btn btn-primary btn-sm">Search</button>
+        {% if q %}<a href="{% url 'visitor_list' %}" class="btn btn-secondary btn-sm">Clear</a>{% endif %}
+    </form>
+</div>
+
+<div class="glass-card">
+    <div class="card-header">
+        <div class="card-title"><span class="icon">👥</span> Visitors ({{ visitors|length }})</div>
+    </div>
+    {% if visitors %}
+    <table class="data-table">
+        <thead>
+            <tr>
+                <th>Name</th>
+                <th>Phone</th>
+                <th>Email</th>
+                <th>Company</th>
+                <th>ID Proof</th>
+                <th>Registered</th>
+                {% if user.role == 'admin' or user.is_superuser %}
+                <th>Actions</th>
+                {% endif %}
+            </tr>
+        </thead>
+        <tbody>
+            {% for visitor in visitors %}
+            <tr>
+                <td><strong>{{ visitor.name }}</strong></td>
+                <td>{{ visitor.phone }}</td>
+                <td>{{ visitor.email|default:"—" }}</td>
+                <td>{{ visitor.company|default:"—" }}</td>
+                <td>{{ visitor.get_id_proof_type_display|default:"—" }} - {{ visitor.id_proof_number }}</td>
+                <td>{{ visitor.created_at|date:"d M Y" }}</td>
+                {% if user.role == 'admin' or user.is_superuser %}
+                <td>
+                    {% if not visitor.blacklist_entry %}
+                    <div style="display:flex;gap:4px;">
+                        <a href="{% url 'blacklist_visitor' visitor.id %}" class="btn btn-danger btn-sm" title="Blacklist">🚫</a>
+                        
+                        {% with last_visit=visitor.visits.first %}
+                            {% if last_visit and last_visit.status == 'pending' %}
+                                <a href="{% url 'approve_visit' last_visit.id %}" class="btn btn-success btn-sm">✅ Approve</a>
+                                <a href="{% url 'reject_visit' last_visit.id %}" class="btn btn-danger btn-sm">❌ Reject</a>
+                            {% elif last_visit and last_visit.status == 'approved' %}
+                                <a href="{% url 'check_in' last_visit.id %}" class="btn btn-success btn-sm">Check In</a>
+                            {% elif last_visit and last_visit.status == 'checked_in' %}
+                                <a href="{% url 'check_out' last_visit.id %}" class="btn btn-danger btn-sm">Check Out</a>
+                            {% elif last_visit and last_visit.status == 'checked_out' %}
+                                <span class="badge badge-checked_out">Duration: {{ last_visit.duration }}</span>
+                            {% elif last_visit %}
+                                <span class="badge badge-{{ last_visit.status }}">{{ last_visit.get_status_display }}</span>
+                            {% endif %}
+                        {% endwith %}
+                    </div>
+                    {% else %}
+                    <span class="badge badge-rejected">Blacklisted</span>
+                    {% endif %}
+                </td>
+                {% endif %}
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    {% else %}
+    <div class="empty-state">
+        <div class="icon">👥</div>
+        <h3>No visitors found</h3>
+        <p>{% if q %}Try a different search term.{% else %}Register your first visitor to get started.{% endif %}</p>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

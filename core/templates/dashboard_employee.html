@@ -1,0 +1,114 @@
+{% extends 'base.html' %}
+
+{% block title %}My Dashboard{% endblock %}
+{% block page_title %}Employee Dashboard{% endblock %}
+{% block page_subtitle %}Manage your visitor approvals{% endblock %}
+
+{% block content %}
+<!-- Pending Approvals -->
+<div class="glass-card">
+    <div class="card-header">
+        <div class="card-title"><span class="icon">⏳</span> Pending Approvals</div>
+        {% if pending_visits %}
+        <span class="badge badge-pending">{{ pending_visits|length }} pending</span>
+        {% endif %}
+    </div>
+    {% if pending_visits %}
+    <table class="data-table">
+        <thead>
+            <tr>
+                <th>Visitor</th>
+                <th>Company</th>
+                <th>Phone</th>
+                <th>Purpose</th>
+                <th>Time</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for visit in pending_visits %}
+            <tr>
+                <td><strong>{{ visit.visitor.name }}</strong></td>
+                <td>{{ visit.visitor.company|default:"—" }}</td>
+                <td>{{ visit.visitor.phone }}</td>
+                <td>{{ visit.purpose }}</td>
+                <td>{{ visit.created_at|date:"h:i A" }}</td>
+                <td>
+                    <div class="gap-2">
+                        <a href="{% url 'approve_visit' visit.id %}" class="btn btn-success btn-sm">✅ Approve</a>
+                        <a href="{% url 'reject_visit' visit.id %}" class="btn btn-danger btn-sm">❌ Reject</a>
+                    </div>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    {% else %}
+    <div class="empty-state">
+        <div class="icon">✅</div>
+        <h3>All caught up!</h3>
+        <p>No pending visitor approvals.</p>
+    </div>
+    {% endif %}
+</div>
+
+<!-- My Visitor History -->
+<div class="glass-card">
+    <div class="card-header">
+        <div class="card-title"><span class="icon">📋</span> My Visitor History</div>
+    </div>
+    {% if my_visits %}
+    <table class="data-table">
+        <thead>
+            <tr>
+                <th>Visitor</th>
+                <th>Purpose</th>
+                <th>Status</th>
+                <th>Check In</th>
+                <th>Check Out</th>
+                <th>Duration</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for visit in my_visits %}
+            <tr>
+                <td><strong>{{ visit.visitor.name }}</strong><br><small class="text-muted">{{ visit.visitor.company|default:"" }}</small></td>
+                <td>{{ visit.purpose }}</td>
+                <td><span class="badge badge-{{ visit.status }}">{{ visit.get_status_display }}</span></td>
+                <td>{{ visit.check_in|date:"d M, h:i A"|default:"—" }}</td>
+                <td>{{ visit.check_out|date:"d M, h:i A"|default:"—" }}</td>
+                <td>{{ visit.duration|default:"—" }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    {% else %}
+    <div class="empty-state">
+        <div class="icon">📭</div>
+        <h3>No visitor history</h3>
+        <p>Your past visitor records will appear here.</p>
+    </div>
+    {% endif %}
+</div>
+
+<!-- Notifications -->
+<div class="glass-card">
+    <div class="card-header">
+        <div class="card-title"><span class="icon">🔔</span> Recent Notifications</div>
+        <a href="{% url 'notifications' %}" class="btn btn-secondary btn-sm">View All</a>
+    </div>
+    {% for notif in notifications %}
+    <div class="notif-item {% if not notif.is_read %}unread{% endif %}">
+        <span class="notif-dot {% if notif.is_read %}read{% endif %}"></span>
+        <div>
+            <div class="notif-message">{{ notif.message }}</div>
+            <div class="notif-time">{{ notif.created_at|timesince }} ago</div>
+        </div>
+    </div>
+    {% empty %}
+    <div class="empty-state" style="padding:30px;">
+        <p>No notifications yet</p>
+    </div>
+    {% endfor %}
+</div>
+{% endblock %}

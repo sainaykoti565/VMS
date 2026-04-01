@@ -1,0 +1,30 @@
+{% extends 'base.html' %}
+
+{% block title %}Create User{% endblock %}
+{% block page_title %}Create New User{% endblock %}
+{% block page_subtitle %}Add a new system user{% endblock %}
+
+{% block content %}
+<div class="glass-card" style="max-width:700px;">
+    <div class="card-header">
+        <div class="card-title"><span class="icon">➕</span> New User</div>
+    </div>
+    <form method="POST">
+        {% csrf_token %}
+        <div class="form-grid">
+            {% for field in form %}
+            <div class="form-group">
+                <label class="form-label" for="{{ field.id_for_label }}">{{ field.label }}</label>
+                {{ field }}
+                {% if field.errors %}<small style="color:var(--accent-red);">{{ field.errors.0 }}</small>{% endif %}
+                {% if field.help_text %}<small class="text-muted" style="font-size:11px;display:block;margin-top:4px;">{{ field.help_text }}</small>{% endif %}
+            </div>
+            {% endfor %}
+        </div>
+        <div class="gap-2 mt-3">
+            <button type="submit" class="btn btn-primary">✅ Create User</button>
+            <a href="{% url 'manage_users' %}" class="btn btn-secondary">Cancel</a>
+        </div>
+    </form>
+</div>
+{% endblock %}

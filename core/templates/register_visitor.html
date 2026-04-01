@@ -1,0 +1,82 @@
+{% extends 'base.html' %}
+
+{% block title %}Register Visitor{% endblock %}
+{% block page_title %}Register New Visitor{% endblock %}
+{% block page_subtitle %}Enter visitor details and select a host{% endblock %}
+
+{% block content %}
+<form method="POST" enctype="multipart/form-data" id="register-form">
+    {% csrf_token %}
+
+    <!-- Visitor Details -->
+    <div class="glass-card">
+        <div class="card-header">
+            <div class="card-title"><span class="icon">👤</span> Visitor Information</div>
+        </div>
+        <div class="form-grid">
+            <div class="form-group">
+                <label class="form-label">Full Name *</label>
+                {{ visitor_form.name }}
+                {% if visitor_form.name.errors %}<small style="color:var(--accent-red)">{{ visitor_form.name.errors.0 }}</small>{% endif %}
+            </div>
+            <div class="form-group">
+                <label class="form-label">Phone Number *</label>
+                {{ visitor_form.phone }}
+                {% if visitor_form.phone.errors %}<small style="color:var(--accent-red)">{{ visitor_form.phone.errors.0 }}</small>{% endif %}
+            </div>
+            <div class="form-group">
+                <label class="form-label">Email</label>
+                {{ visitor_form.email }}
+            </div>
+            <div class="form-group">
+                <label class="form-label">Company</label>
+                {{ visitor_form.company }}
+            </div>
+            <div class="form-group">
+                <label class="form-label">ID Proof Type</label>
+                {{ visitor_form.id_proof_type }}
+            </div>
+            <div class="form-group">
+                <label class="form-label">ID Proof Number</label>
+                {{ visitor_form.id_proof_number }}
+            </div>
+            <div class="form-group" style="grid-column: span 2;">
+                <label class="form-label">Address</label>
+                {{ visitor_form.address }}
+            </div>
+            <div class="form-group">
+                <label class="form-label">Photo</label>
+                {{ visitor_form.photo }}
+            </div>
+        </div>
+    </div>
+
+    <!-- Visit Details -->
+    <div class="glass-card">
+        <div class="card-header">
+            <div class="card-title"><span class="icon">📝</span> Visit Details</div>
+        </div>
+        <div class="form-grid">
+            <div class="form-group">
+                <label class="form-label">Select Host (Employee) *</label>
+                {{ visit_form.host }}
+                {% if visit_form.host.errors %}<small style="color:var(--accent-red)">{{ visit_form.host.errors.0 }}</small>{% endif %}
+            </div>
+            <div class="form-group">
+                <label class="form-label">Purpose of Visit *</label>
+                {{ visit_form.purpose }}
+                {% if visit_form.purpose.errors %}<small style="color:var(--accent-red)">{{ visit_form.purpose.errors.0 }}</small>{% endif %}
+            </div>
+            <div class="form-group">
+                <label class="form-label">Badge Number</label>
+                {{ visit_form.badge_number }}
+            </div>
+        </div>
+    </div>
+
+    <div class="gap-2">
+        <button type="submit" class="btn btn-primary">✅ Register & Notify Host</button>
+        <a href="{% url 'dashboard' %}" class="btn btn-secondary">Cancel</a>
+    </div>
+</form>
+{% endblock %}

@@ -1,0 +1,92 @@
+{% extends 'base.html' %}
+
+{% block title %}Guard Dashboard{% endblock %}
+{% block page_title %}Guard Dashboard{% endblock %}
+{% block page_subtitle %}Manage visitor check-ins and check-outs{% endblock %}
+
+{% block content %}
+<!-- Quick Stats -->
+<div class="stats-grid">
+    <div class="stat-card green">
+        <div class="stat-icon">✅</div>
+        <div class="stat-value">{{ checked_in }}</div>
+        <div class="stat-label">Checked In</div>
+    </div>
+    <div class="stat-card purple">
+        <div class="stat-icon">🚪</div>
+        <div class="stat-value">{{ checked_out }}</div>
+        <div class="stat-label">Checked Out</div>
+    </div>
+    <div class="stat-card orange">
+        <div class="stat-icon">⏳</div>
+        <div class="stat-value">{{ pending }}</div>
+        <div class="stat-label">Pending</div>
+    </div>
+    <div class="stat-card blue">
+        <div class="stat-icon">👍</div>
+        <div class="stat-value">{{ approved }}</div>
+        <div class="stat-label">Approved</div>
+    </div>
+</div>
+
+<!-- Quick Actions -->
+<div class="glass-card">
+    <div class="card-header">
+        <div class="card-title"><span class="icon">⚡</span> Quick Actions</div>
+    </div>
+    <div class="gap-2" style="flex-wrap:wrap;">
+        <a href="{% url 'register_visitor' %}" class="btn btn-primary">➕ Register New Visitor</a>
+        <a href="{% url 'visitor_list' %}" class="btn btn-secondary">👥 View All Visitors</a>
+        <a href="{% url 'visitor_history' %}" class="btn btn-secondary">📋 Visit History</a>
+    </div>
+</div>
+
+<!-- Today's Visits -->
+<div class="glass-card">
+    <div class="card-header">
+        <div class="card-title"><span class="icon">📋</span> Today's Visits</div>
+    </div>
+    {% if today_visits %}
+    <table class="data-table">
+        <thead>
+            <tr>
+                <th>Visitor</th>
+                <th>Host</th>
+                <th>Purpose</th>
+                <th>Status</th>
+                <th>Time</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for visit in today_visits %}
+            <tr>
+                <td><strong>{{ visit.visitor.name }}</strong><br><small class="text-muted">{{ visit.visitor.phone }}</small></td>
+                <td>{{ visit.host.get_full_name|default:visit.host.username }}</td>
+                <td>{{ visit.purpose }}</td>
+                <td><span class="badge badge-{{ visit.status }}">{{ visit.get_status_display }}</span></td>
+                <td>{{ visit.created_at|date:"h:i A" }}</td>
+                <td>
+                    {% if visit.status == 'approved' or visit.status == 'pending' %}
+                        <a href="{% url 'check_in' visit.id %}" class="btn btn-success btn-sm">Check In</a>
+                    {% elif visit.status == 'checked_in' %}
+                        <a href="{% url 'check_out' visit.id %}" class="btn btn-danger btn-sm">Check Out</a>
+                    {% elif visit.status == 'checked_out' %}
+                        <span class="text-muted">{{ visit.duration }}</span>
+                    {% else %}
+                        <span class="text-muted">—</span>
+                    {% endif %}
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    {% else %}
+    <div class="empty-state">
+        <div class="icon">📭</div>
+        <h3>No visits today</h3>
+        <p>Register a new visitor to get started.</p>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

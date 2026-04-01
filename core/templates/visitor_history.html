@@ -1,0 +1,81 @@
+{% extends 'base.html' %}
+
+{% block title %}Visit History{% endblock %}
+{% block page_title %}Visit History{% endblock %}
+{% block page_subtitle %}Search, filter, and export visit records{% endblock %}
+
+{% block content %}
+<div class="filter-bar">
+    <form method="GET" style="display:flex;gap:12px;flex-wrap:wrap;width:100%;align-items:center;">
+        <input type="text" name="q" value="{{ q }}" placeholder="🔍 Search visitor, host, purpose..."
+            style="flex:1;min-width:200px;">
+        <select name="status">
+            <option value="">All Statuses</option>
+            {% for val, display in status_choices %}
+
+            <option value="{{ val }}" {% if status == val %}selected{% endif %}>
+                {{ display }}
+            </option>
+            {% endfor %}
+        </select>
+        <div style="display:flex;align-items:center;gap:6px;">
+            <span style="font-size:13px;color:wheat;">From:</span>
+            <input type="date" name="date_from" value="{{ date_from }}" title="From date">
+        </div>
+        <div style="display:flex;align-items:center;gap:6px;">
+            <span style="font-size:13px;color:wheat;">To:</span>
+            <input type="date" name="date_to" value="{{ date_to }}" title="To date">
+        </div>
+        <button type="submit" class="btn btn-primary btn-sm">Search</button>
+        <a href="{% url 'visitor_history' %}?{{ request.GET.urlencode }}&export=csv" class="btn btn-success btn-sm">📥
+            Export CSV</a>
+        {% if q or status or date_from or date_to %}
+        <a href="{% url 'visitor_history' %}" class="btn btn-secondary btn-sm">Clear</a>
+        {% endif %}
+    </form>
+</div>
+
+<div class="glass-card">
+    <div class="card-header">
+        <div class="card-title"><span class="icon">📋</span> Visits ({{ visits|length }})</div>
+    </div>
+    {% if visits %}
+    <div style="overflow-x:auto;">
+        <table class="data-table">
+            <thead>
+                <tr>
+                    <th>Visitor</th>
+                    <th>Phone</th>
+                    <th>Host</th>
+                    <th>Purpose</th>
+                    <th>Status</th>
+                    <th>Check In</th>
+                    <th>Check Out</th>
+                    <th>Duration</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for visit in visits %}
+                <tr>
+                    <td><strong>{{ visit.visitor.name }}</strong><br>
+                    <td>{{ visit.visitor.phone}}</td>
+                    <td>{{ visit.host.get_full_name|default:visit.host.username }}</td>
+                    <td>{{ visit.purpose }}</td>
+                    <td><span class="badge badge-{{ visit.status }}">{{ visit.get_status_display }}</span></td>
+                    <td>{{ visit.check_in|date:"d M Y, h:i A"|default:"—" }}</td>
+                    <td>{{ visit.check_out|date:"d M Y, h:i A"|default:"—" }}</td>
+                    <td>{{ visit.duration|default:"—" }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% else %}
+    <div class="empty-state">
+        <div class="icon">📋</div>
+        <h3>No visits found</h3>
+        <p>Adjust your filters or register new visitors.</p>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

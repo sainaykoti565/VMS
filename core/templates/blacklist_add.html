@@ -1,0 +1,30 @@
+{% extends 'base.html' %}
+
+{% block title %}Blacklist Visitor{% endblock %}
+{% block page_title %}Blacklist Visitor{% endblock %}
+{% block page_subtitle %}Add {{ visitor.name }} to the blacklist{% endblock %}
+
+{% block content %}
+<div class="glass-card" style="max-width:600px;">
+    <div class="card-header">
+        <div class="card-title"><span class="icon">🚫</span> Blacklist: {{ visitor.name }}</div>
+    </div>
+    <div class="mb-3">
+        <p><strong>Name:</strong> {{ visitor.name }}</p>
+        <p><strong>Phone:</strong> {{ visitor.phone }}</p>
+        <p><strong>Company:</strong> {{ visitor.company|default:"—" }}</p>
+    </div>
+    <form method="POST">
+        {% csrf_token %}
+        <div class="form-group">
+            <label class="form-label">Reason for Blacklisting *</label>
+            {{ form.reason }}
+            {% if form.reason.errors %}<small style="color:var(--accent-red);">{{ form.reason.errors.0 }}</small>{% endif %}
+        </div>
+        <div class="gap-2">
+            <button type="submit" class="btn btn-danger">🚫 Blacklist Visitor</button>
+            <a href="{% url 'visitor_list' %}" class="btn btn-secondary">Cancel</a>
+        </div>
+    </form>
+</div>
+{% endblock %}

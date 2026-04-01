@@ -1,0 +1,49 @@
+{% extends 'base.html' %}
+
+{% block title %}Blacklist{% endblock %}
+{% block page_title %}Blacklist Management{% endblock %}
+{% block page_subtitle %}Manage blacklisted visitors{% endblock %}
+
+{% block content %}
+<div class="glass-card">
+    <div class="card-header">
+        <div class="card-title"><span class="icon">🚫</span> Blacklisted Visitors ({{ blacklisted|length }})</div>
+    </div>
+    {% if blacklisted %}
+    <table class="data-table">
+        <thead>
+            <tr>
+                <th>Visitor</th>
+                <th>Phone</th>
+                <th>Company</th>
+                <th>Reason</th>
+                <th>Blacklisted By</th>
+                <th>Date</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for bl in blacklisted %}
+            <tr>
+                <td><strong>{{ bl.visitor.name }}</strong></td>
+                <td>{{ bl.visitor.phone }}</td>
+                <td>{{ bl.visitor.company|default:"—" }}</td>
+                <td>{{ bl.reason }}</td>
+                <td>{{ bl.blacklisted_by.get_full_name|default:bl.blacklisted_by.username }}</td>
+                <td>{{ bl.created_at|date:"d M Y" }}</td>
+                <td>
+                    <a href="{% url 'remove_blacklist' bl.id %}" class="btn btn-success btn-sm" onclick="return confirm('Remove {{ bl.visitor.name }} from blacklist?')">✅ Remove</a>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    {% else %}
+    <div class="empty-state">
+        <div class="icon">✅</div>
+        <h3>No blacklisted visitors</h3>
+        <p>All clear — no visitors are currently blacklisted.</p>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

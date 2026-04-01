@@ -1,0 +1,94 @@
+{% extends 'base.html' %}
+
+{% block title %}Reports{% endblock %}
+{% block page_title %}Reports{% endblock %}
+{% block page_subtitle %}Visitor analytics and trends{% endblock %}
+
+{% block content %}
+<div class="filter-bar">
+    <form method="GET" style="display:flex;gap:12px;flex-wrap:wrap;width:100%;align-items:center;">
+        <label style="color:var(--text-secondary);font-size:13px;font-weight:600;">From:</label>
+        <input type="date" name="date_from" value="{{ date_from }}">
+        <label style="color:var(--text-secondary);font-size:13px;font-weight:600;">To:</label>
+        <input type="date" name="date_to" value="{{ date_to }}">
+        <button type="submit" class="btn btn-primary btn-sm">Generate</button>
+        <a href="{% url 'reports' %}?date_from={{ date_from }}&date_to={{ date_to }}&export=csv" class="btn btn-success btn-sm">📥 Export CSV</a>
+    </form>
+</div>
+
+<!-- Summary Stats -->
+<div class="stats-grid">
+    <div class="stat-card blue">
+        <div class="stat-icon">📊</div>
+        <div class="stat-value">{{ total }}</div>
+        <div class="stat-label">Total Visits</div>
+    </div>
+    <div class="stat-card green">
+        <div class="stat-icon">✅</div>
+        <div class="stat-value">{{ approved }}</div>
+        <div class="stat-label">Approved</div>
+    </div>
+    <div class="stat-card red">
+        <div class="stat-icon">❌</div>
+        <div class="stat-value">{{ rejected }}</div>
+        <div class="stat-label">Rejected</div>
+    </div>
+    <div class="stat-card purple">
+        <div class="stat-icon">🚪</div>
+        <div class="stat-value">{{ checked_out }}</div>
+        <div class="stat-label">Completed Visits</div>
+    </div>
+</div>
+
+<!-- Chart -->
+<div class="glass-card">
+    <div class="card-header">
+        <div class="card-title"><span class="icon">📈</span> Daily Visit Trend</div>
+    </div>
+    <div class="chart-container">
+        <canvas id="reportChart"></canvas>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    const ctx = document.getElementById('reportChart').getContext('2d');
+    new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: {{ daily_labels|safe }},
+            datasets: [{
+                label: 'Daily Visits',
+                data: {{ daily_data|safe }},
+                borderColor: '#3b82f6',
+                backgroundColor: 'rgba(59, 130, 246, 0.1)',
+                fill: true,
+                tension: 0.4,
+                pointBackgroundColor: '#3b82f6',
+                pointBorderColor: '#fff',
+                pointBorderWidth: 2,
+                pointRadius: 5,
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: { display: false },
+            },
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    ticks: { color: '#64748b', stepSize: 1 },
+                    grid: { color: 'rgba(255,255,255,0.05)' },
+                },
+                x: {
+                    ticks: { color: '#64748b' },
+                    grid: { display: false },
+                }
+            }
+        }
+    });
+</script>
+{% endblock %}

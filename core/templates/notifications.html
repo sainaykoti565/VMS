@@ -1,0 +1,36 @@
+{% extends 'base.html' %}
+
+{% block title %}Notifications{% endblock %}
+{% block page_title %}Notifications{% endblock %}
+{% block page_subtitle %}Your visitor alerts and updates{% endblock %}
+
+{% block content %}
+<div class="glass-card">
+    <div class="card-header">
+        <div class="card-title"><span class="icon">🔔</span> All Notifications</div>
+    </div>
+    {% if notifications %}
+        {% for notif in notifications %}
+        <div class="notif-item {% if not notif.is_read %}unread{% endif %}">
+            <span class="notif-dot {% if notif.is_read %}read{% endif %}"></span>
+            <div style="flex:1;">
+                <div class="notif-message">{{ notif.message }}</div>
+                <div class="notif-time">{{ notif.created_at|timesince }} ago</div>
+            </div>
+            {% if notif.visit and notif.visit.status == 'pending' %}
+            <div class="gap-2">
+                <a href="{% url 'approve_visit' notif.visit.id %}" class="btn btn-success btn-sm">Approve</a>
+                <a href="{% url 'reject_visit' notif.visit.id %}" class="btn btn-danger btn-sm">Reject</a>
+            </div>
+            {% endif %}
+        </div>
+        {% endfor %}
+    {% else %}
+    <div class="empty-state">
+        <div class="icon">🔕</div>
+        <h3>No notifications</h3>
+        <p>You're all caught up!</p>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

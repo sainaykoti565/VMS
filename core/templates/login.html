@@ -1,0 +1,44 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login — VMS</title>
+    <link rel="stylesheet" href="{% static 'core/css/style.css' %}">
+</head>
+<body>
+    {% if messages %}
+    <div class="messages-container">
+        {% for message in messages %}
+        <div class="message message-{{ message.tags }}">{{ message }}</div>
+        {% endfor %}
+    </div>
+    {% endif %}
+
+    <div class="login-page">
+        <div class="login-card">
+            <div class="login-brand">
+                <div class="logo-icon">🏢</div>
+                <h1>Welcome to VMS</h1>
+                <p>Visitor Management System</p>
+            </div>
+
+            <form method="POST" id="login-form">
+                {% csrf_token %}
+                <div class="form-group">
+                    <label class="form-label" for="id_username">Username</label>
+                    {{ form.username }}
+                </div>
+                <div class="form-group">
+                    <label class="form-label" for="id_password">Password</label>
+                    {{ form.password }}
+                </div>
+                <button type="submit" class="btn btn-primary">Sign In</button>
+            </form>
+        </div>
+    </div>
+
+    <script src="{% static 'core/js/main.js' %}"></script>
+</body>
+</html>
