@@ -188,6 +188,14 @@ def check_in(request, visit_id):
     visit.status = 'checked_in'
     visit.check_in = timezone.now()
     visit.save()
+
+    if visit.host:
+        Notification.objects.create(
+            user=visit.host,
+            visit=visit,
+            message=f'✅ Your visitor {visit.visitor.name} has checked in at the front desk.'
+        )
+
     messages.success(request, f'✅ {visit.visitor.name} checked in at {visit.check_in.strftime("%I:%M %p")}')
     return redirect(request.META.get('HTTP_REFERER', 'dashboard'))
 
@@ -202,6 +210,14 @@ def check_out(request, visit_id):
     visit.status = 'checked_out'
     visit.check_out = timezone.now()
     visit.save()
+
+    if visit.host:
+        Notification.objects.create(
+            user=visit.host,
+            visit=visit,
+            message=f'👋 Your visitor {visit.visitor.name} has checked out. Total duration: {visit.duration}.'
+        )
+
     messages.success(request, f'✅ {visit.visitor.name} checked out. Duration: {visit.duration}')
     return redirect(request.META.get('HTTP_REFERER', 'dashboard'))
 

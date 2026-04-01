@@ -52,12 +52,13 @@
                     <th>Check In</th>
                     <th>Check Out</th>
                     <th>Duration</th>
+                    <th>Actions</th>
                 </tr>
             </thead>
             <tbody>
                 {% for visit in visits %}
                 <tr>
-                    <td><strong>{{ visit.visitor.name }}</strong><br>
+                    <td><strong>{{ visit.visitor.name }}</strong></td>
                     <td>{{ visit.visitor.phone}}</td>
                     <td>{{ visit.host.get_full_name|default:visit.host.username }}</td>
                     <td>{{ visit.purpose }}</td>
@@ -65,6 +66,24 @@
                     <td>{{ visit.check_in|date:"d M Y, h:i A"|default:"—" }}</td>
                     <td>{{ visit.check_out|date:"d M Y, h:i A"|default:"—" }}</td>
                     <td>{{ visit.duration|default:"—" }}</td>
+                    <td>
+                        <div style="display:flex;gap:4px;">
+                        {% if visit.status == 'pending' %}
+                            {% if user.role == 'admin' or user.is_superuser or user == visit.host %}
+                            <a href="{% url 'approve_visit' visit.id %}" class="btn btn-success btn-sm" title="Approve">✅ Approve</a>
+                            <a href="{% url 'reject_visit' visit.id %}" class="btn btn-danger btn-sm" title="Reject">❌ Reject</a>
+                            {% endif %}
+                        {% elif visit.status == 'approved' %}
+                            {% if user.role == 'admin' or user.role == 'guard' or user.is_superuser %}
+                            <a href="{% url 'check_in' visit.id %}" class="btn btn-success btn-sm">Check In</a>
+                            {% endif %}
+                        {% elif visit.status == 'checked_in' %}
+                            {% if user.role == 'admin' or user.role == 'guard' or user.is_superuser %}
+                            <a href="{% url 'check_out' visit.id %}" class="btn btn-danger btn-sm">Check Out</a>
+                            {% endif %}
+                        {% endif %}
+                        </div>
+                    </td>
                 </tr>
                 {% endfor %}
             </tbody>
